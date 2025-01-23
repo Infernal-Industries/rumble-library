@@ -2,8 +2,8 @@ import os
 import logging
 from moviepy.editor import VideoFileClip
 
-input_dir = 'Input/Clips'
-output_dir = 'assets/Clips'
+input_dir = 'input/clips'
+output_dir = 'assets/clips'
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
