@@ -31,23 +31,28 @@ def convert_to_gif(filename):
             # Load the video
             clip = VideoFileClip(input_path)
             original_fps = clip.fps
+            original_duration = clip.duration
             
-            logging.info(f'Original video stats - FPS: {original_fps}')
+            logging.info(f'Original video stats:')
+            logging.info(f'- FPS: {original_fps}')
+            logging.info(f'- Duration: {original_duration:.2f}s')
             
-            # Just resize, maintain original speed and fps
+            # Resize
             clip = clip.resize(width=1080)
             
-            # Try using a higher FPS for the GIF
-            output_fps = min(original_fps, 60)  # Cap at 60 FPS for file size
+            # Use original FPS, capped at 30
+            output_fps = min(original_fps, 30)
             
-            logging.info(f'Writing GIF with FPS: {output_fps}')
-            # Write the GIF with additional options
+            logging.info(f'Output settings:')
+            logging.info(f'- Target FPS: {output_fps}')
+            
+            # Write the GIF
             clip.write_gif(
                 output_path,
                 fps=output_fps,
                 program='ffmpeg',
-                opt='optimizeplus',  # Use optimization
-                fuzz=10  # Reduce colors slightly for better file size
+                opt='optimizeplus',
+                fuzz=10
             )
             
             logging.info(f'Saved GIF to {output_path}')
