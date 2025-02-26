@@ -31,8 +31,8 @@
             text-align: center;
         }
         
-        /* Style for the GIF container */
-        .gif-container {
+        /* Style for the video container */
+        .video-container {
             width: 100%;
             display: flex;
             justify-content: center;
@@ -40,7 +40,7 @@
             box-sizing: border-box;
         }
         
-        .gif-container img {
+        .video-container video {
             max-width: 100%;
             height: auto;
         }
@@ -48,8 +48,11 @@
 </head>
 <body>
     <h1 class="title">Windburst</h1>
-    <div class="gif-container">
-        <img src="assets/clips/Windburst.gif" alt="Centered GIF">
+    <div class="video-container">
+        <video autoplay loop muted playsinline>
+            <source src="assets/clips/Windburst.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
     </div>
 </body>
 </html>
