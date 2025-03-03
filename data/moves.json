@@ -1,0 +1,36 @@
+{
+    "moves": [
+        {
+            "id": "windburst",
+            "title": "Windburst",
+            "username": "BoredYoshi",
+            "notation": {
+                "main": "cF!DJB.D",
+                "notes": [
+                    "!pull to side",
+                    "!example second note"
+                ]
+            },
+            "tags": ["stubborn", "flow", "host", "aerial", "bump"],
+            "mechanics": "[Description here]",
+            "goal": "[Description here]",
+            "video_path": "assets/clips/Windburst.mp4"
+        },
+        {
+            "id": "tempest",
+            "title": "Tempest",
+            "username": "TB",
+            "notation": {
+                "main": "w1Utw2Umc3KU2DJF1JH2M!",
+                "notes": [
+                    "!jettison"
+                ]
+            },
+            "tags": ["flow", "host", "aerial", "mount", "jettison"],
+            "mechanics": "[Description here]",
+            "goal": "[Description here]",
+            "video_path": "assets/clips/Tempest.mp4",
+            "alternate_video_path": "assets/clips/Tempest [alt].mp4"
+        }
+    ]
+} 
