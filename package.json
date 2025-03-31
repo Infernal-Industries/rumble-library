@@ -1,0 +1,19 @@
+{
+  "name": "rumble-library",
+  "version": "1.0.0",
+  "description": "A library for fighting game moves and techniques",
+  "scripts": {
+    "dev": "vercel dev",
+    "prebuild": "mkdir -p public/js public/api",
+    "build": "cp index.html discord-callback.html public/ && cp -r js/* public/js/ && cp -r api/* public/api/",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "formidable": "^3.5.1",
+    "node-fetch": "^3.3.2",
+    "form-data": "^4.0.0"
+  },
+  "devDependencies": {
+    "vercel": "^32.3.0"
+  }
+} 
