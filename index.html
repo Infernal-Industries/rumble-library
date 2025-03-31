@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/rumble-library/">
+    <title>Rumble Library</title>
+    <style>
+        @font-face {
+            font-family: 'Chinese Rocks';
+            src: url('./assets/fonts/chinese_rocks.otf') format('opentype');
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .landing-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+        }
+
+        .landing-container {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .landing-title {
+            font-family: 'Chinese Rocks', Arial, sans-serif;
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #ff4d4d;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .landing-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: #cccccc;
+        }
+
+        .landing-search-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .landing-search-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            transition: background-color 0.3s;
+        }
+
+        .landing-search-input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .landing-search-results {
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        .layout-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 2rem;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .left-sidebar, .main-content, .clips-container {
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .section-header {
+            font-family: 'Chinese Rocks', Arial, sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #ff4d4d;
+        }
+
+        .discussion-messages {
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .message-input textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            resize: vertical;
+        }
+
+        .community-clips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-button {
+            width: 100%;
+            padding: 0.5rem;
+            background-color: #ff4d4d;
+            border: none;
+            border-radius: 5px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .upload-button:hover {
+            background-color: #ff3333;
+        }
+
+        .search-container {
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .posted-by {
+            color: #cccccc;
+            margin-bottom: 1rem;
+        }
+
+        .tags-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            padding: 0.25rem 0.5rem;
+            background-color: #ff4d4d;
+            border: none;
+            border-radius: 3px;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        .notation-block {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .move-description {
+            line-height: 1.6;
+        }
+
+        .clip-box {
+            margin-bottom: 1rem;
+        }
+
+        .clip-box video {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .metadata-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .metadata-content {
+            background-color: #2a2a2a;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .form-actions button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-actions button[type="submit"] {
+            background-color: #ff4d4d;
+            color: #ffffff;
+        }
+
+        .form-actions button.cancel {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+    </style>
+    <!-- Load configuration first -->
+    <script src="js/config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth-compat.js"></script>
+    <!-- Application scripts -->
+    <script defer src="js/firebase-config.js"></script>
+    <script defer src="js/video-manager.js"></script>
+    <script defer src="js/main.js"></script>
+</head>
+<body class="landing-page">
+    <div class="layout-container" style="display: none;">
+        <!-- Left Sidebar -->
+        <div class="left-sidebar">
+            <!-- Discussion Section -->
+            <div class="discussion-section">
+                <div class="section-header">Move Discussion</div>
+                <div class="discussion-messages">
+                    <!-- Messages will be dynamically added here -->
+                </div>
+                <div class="message-input">
+                    <textarea placeholder="Type your message..."></textarea>
+                </div>
+            </div>
+
+            <!-- Community Clips -->
+            <div class="community-clips">
+                <div class="section-header">Community Clips</div>
+                <div class="community-clips-grid">
+                    <!-- Clips will be dynamically added here -->
+                </div>
+                <button class="upload-button">Upload Clip</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <button class="home-button">Home</button>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search moves...">
+                <div class="search-results"></div>
+            </div>
+            <h1 class="title"></h1>
+            <div class="posted-by">posted by <span class="username"></span></div>
+            <div class="tags-container"></div>
+            <div class="notation-block">
+                <div class="notation-dropdown-trigger"></div>
+                <div class="notation-dropdown-menu">
+                    <button>Copy Notation</button>
+                    <button>Share</button>
+                </div>
+            </div>
+            <div class="move-description"></div>
+        </div>
+
+        <!-- Right Side Clips -->
+        <div class="clips-container">
+            <div class="clip-box">
+                <video autoplay loop muted playsinline>
+                    <source src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div class="clip-box" style="display: none;">
+                <video autoplay loop muted playsinline>
+                    <source src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+
+    <!-- Landing Page Content -->
+    <div class="landing-container">
+        <h1 class="landing-title">THE RUMBLE LIBRARY</h1>
+        <h2 class="landing-subtitle">Search for moves, combos, and techniques</h2>
+        <div class="landing-search-container">
+            <input type="text" class="landing-search-input" placeholder="Start typing to search...">
+            <div class="landing-search-results"></div>
+        </div>
+    </div>
+
+    <!-- Upload Status -->
+    <div class="upload-status" style="display: none;">
+        <div class="upload-status-content">
+            <div class="upload-status-message"></div>
+            <div class="upload-status-progress"></div>
+        </div>
+    </div>
+
+    <!-- Metadata Modal -->
+    <div class="metadata-modal" style="display: none;">
+        <div class="metadata-content">
+            <form id="metadata-form">
+                <div class="form-group">
+                    <label for="title">Move Title</label>
+                    <input type="text" id="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="notation">Notation</label>
+                    <input type="text" id="notation" required>
+                </div>
+                <div class="form-group">
+                    <label for="mechanics">Mechanics Used</label>
+                    <textarea id="mechanics" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="goal">Goal Achieved</label>
+                    <textarea id="goal" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="tags">Tags (comma separated)</label>
+                    <input type="text" id="tags" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="cancel">Cancel</button>
+                    <button type="submit">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 

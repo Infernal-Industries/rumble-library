@@ -1,0 +1,18 @@
+{
+  "moves": [
+    {
+      "id": "sample-move-1",
+      "title": "Basic Combo",
+      "notation": {
+        "main": "5A > 2B > 236C",
+        "notes": ["Can be followed up with 214A for oki"]
+      },
+      "mechanics": "Uses standard chain cancel into special move",
+      "goal": "Basic damage and corner carry",
+      "tags": ["Beginner", "BnB", "Corner"],
+      "username": "DemoUser",
+      "video_path": "./assets/clips/sample.mp4",
+      "alternate_video_path": null
+    }
+  ]
+} 
