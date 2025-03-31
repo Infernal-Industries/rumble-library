@@ -20,6 +20,5 @@
     }
   ],
   "regions": ["sfo1"],
-  "public": false,
-  "rootDirectory": "rumble-library-api"
+  "public": false
 } 
