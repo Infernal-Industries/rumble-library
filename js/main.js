@@ -1,6 +1,3 @@
-// Base URL for GitHub Pages
-const BASE_URL = '/rumble-library';
-
 // Search weights configuration
 const MATCH_WEIGHTS = {
     EXACT_TITLE: 100,
@@ -15,6 +12,12 @@ const MATCH_WEIGHTS = {
 // Load moves data
 let movesData = { moves: [] };
 let currentMove = null;
+
+// Get base URL for assets
+function getBaseUrl() {
+    const baseTag = document.querySelector('base');
+    return baseTag ? baseTag.href : '/';
+}
 
 // Get move ID from URL or default to first move
 function getMoveIdFromUrl() {
@@ -55,43 +58,68 @@ window.addEventListener('popstate', (event) => {
     }
 });
 
-// Update fetch path to use base URL
-fetch(`${BASE_URL}/data/moves.json`)
-    .then(response => response.json())
-    .then(data => {
-        movesData = data;
-        console.log('Loaded moves data:', movesData); // Debug log
+// Load moves data with better error handling
+async function loadMovesData() {
+    try {
+        const baseUrl = getBaseUrl();
+        const response = await fetch(`${baseUrl}data/moves.json`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        console.log('Successfully fetched moves.json');
+        const data = await response.json();
+        console.log('Successfully parsed moves.json:', data);
+        return data;
+    } catch (error) {
+        console.error('Error loading moves data:', error);
+        console.error('Error details:', {
+            message: error.message,
+            stack: error.stack
+        });
+        throw error;
+    }
+}
+
+// Initialize the application
+async function initializeApp() {
+    try {
+        movesData = await loadMovesData();
         
         // Get move ID from URL
         const moveId = getMoveIdFromUrl();
         
         if (moveId) {
             // If we have a move ID, show the move page
-            currentMove = data.moves.find(m => m.id === moveId);
-            if (!currentMove && data.moves.length > 0) {
-                currentMove = data.moves[0];
+            currentMove = movesData.moves.find(m => m.id === moveId);
+            if (!currentMove && movesData.moves.length > 0) {
+                currentMove = movesData.moves[0];
             }
             if (currentMove) {
                 updateUrl(currentMove.id, false);
+                document.body.classList.remove('landing-page');
+                document.querySelector('.layout-container').style.display = 'grid';
+                updatePageContent(currentMove);
+                setupNotationDropdown();
             }
-            document.body.classList.remove('landing-page');
-            document.querySelector('.layout-container').style.display = 'grid';
-            initializeApp();
         } else {
             // If no move ID, show the landing page
             document.body.classList.add('landing-page');
             document.querySelector('.layout-container').style.display = 'none';
             initializeLandingPage();
         }
-    })
-    .catch(error => {
-        console.error('Error loading moves data:', error);
-        // Show error message to user
+    } catch (error) {
+        console.error('Failed to initialize app:', error);
         alert('Failed to load moves data. Please try refreshing the page.');
-    });
+    }
+}
 
-// Update video paths to use base URL
+// Start the application
+initializeApp();
+
+// Update video paths to use relative paths
 function updatePageContent(move) {
+    const baseUrl = getBaseUrl();
+    
     // Update title
     document.querySelector('.title').textContent = move.title;
     
@@ -143,9 +171,9 @@ function updatePageContent(move) {
         Goal Achieved: ${move.goal}
     `;
     
-    // Update main video with base URL
+    // Update main video with correct base URL
     const mainVideo = document.querySelector('.clip-box video source');
-    mainVideo.src = `${BASE_URL}${move.video_path}`;
+    mainVideo.src = `${baseUrl}${move.video_path}`;
     mainVideo.parentElement.load();
 
     // Handle alternate video if available
@@ -153,7 +181,7 @@ function updatePageContent(move) {
     if (move.alternate_video_path) {
         alternateClipBox.style.display = 'block';
         const alternateVideo = alternateClipBox.querySelector('video source');
-        alternateVideo.src = `${BASE_URL}${move.alternate_video_path}`;
+        alternateVideo.src = `${baseUrl}${move.alternate_video_path}`;
         alternateVideo.parentElement.load();
     } else {
         alternateClipBox.style.display = 'none';

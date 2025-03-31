@@ -1,21 +1,5 @@
-// Your web app's Firebase configuration
-// Replace these values with your actual Firebase config from the Firebase Console
-const firebaseConfig = {
-    apiKey: process.env.FIREBASE_API_KEY,
-    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-    databaseURL: process.env.FIREBASE_DATABASE_URL,
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.FIREBASE_APP_ID
-};
-
-// Discord OAuth2 Configuration
-const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
-const DISCORD_REDIRECT_URI = window.location.origin + '/discord-callback.html';
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// Initialize Firebase with configuration from config.js
+firebase.initializeApp(window.appConfig.firebase);
 
 // Get references to services
 const auth = firebase.auth();
@@ -57,11 +41,9 @@ function showSignInButton() {
 
 // Sign in with Discord
 function signInWithDiscord() {
-    // Discord OAuth2 URL with required scopes
     const scope = 'identify email';
-    const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(scope)}`;
+    const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${window.appConfig.discord.clientId}&redirect_uri=${encodeURIComponent(window.appConfig.discord.redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
     
-    // Open Discord auth in a popup
     const width = 500;
     const height = 800;
     const left = window.screen.width / 2 - width / 2;
@@ -81,26 +63,45 @@ window.addEventListener('message', async (event) => {
     if (event.data.type === 'DISCORD_AUTH_SUCCESS') {
         const { code } = event.data;
         try {
-            // Exchange code for Firebase custom token
-            const response = await fetch('/api/discord-auth', {
+            // Exchange code for Discord access token
+            const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: JSON.stringify({ code }),
+                body: new URLSearchParams({
+                    client_id: window.appConfig.discord.clientId,
+                    client_secret: window.appConfig.discord.clientSecret,
+                    grant_type: 'authorization_code',
+                    code: code,
+                    redirect_uri: window.appConfig.discord.redirectUri
+                })
             });
-            
-            if (!response.ok) {
-                throw new Error('Failed to authenticate with Discord');
+
+            if (!tokenResponse.ok) {
+                throw new Error('Failed to get Discord access token');
             }
 
-            const { firebaseToken, discordUser } = await response.json();
-            
-            // Sign in to Firebase with custom token
-            await auth.signInWithCustomToken(firebaseToken);
+            const tokenData = await tokenResponse.json();
+
+            // Get Discord user info
+            const userResponse = await fetch('https://discord.com/api/users/@me', {
+                headers: {
+                    Authorization: `Bearer ${tokenData.access_token}`
+                }
+            });
+
+            if (!userResponse.ok) {
+                throw new Error('Failed to get Discord user info');
+            }
+
+            const discordUser = await userResponse.json();
+
+            // Sign in to Firebase anonymously
+            const { user } = await auth.signInAnonymously();
             
             // Store Discord user info
-            const userRef = database.ref(`users/${auth.currentUser.uid}`);
+            const userRef = database.ref(`users/${user.uid}`);
             await userRef.update({
                 discordId: discordUser.id,
                 username: discordUser.username,
