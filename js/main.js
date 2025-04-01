@@ -188,4 +188,32 @@ function updatePageContent(move) {
     }
 }
 
+// Initialize landing page
+function initializeLandingPage() {
+    const searchInput = document.querySelector('.landing-search-input');
+    const searchResults = document.querySelector('.landing-search-results');
+    
+    if (searchInput && searchResults) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            if (query.length > 0) {
+                const fuse = new Fuse(movesData.moves, {
+                    keys: ['title', 'notation.main', 'tags'],
+                    threshold: 0.3
+                });
+                
+                const results = fuse.search(query);
+                searchResults.innerHTML = results.map(result => `
+                    <div class="search-result" onclick="window.location.href='?move=${result.item.id}'">
+                        <h3>${result.item.title}</h3>
+                        <p>${result.item.notation.main}</p>
+                    </div>
+                `).join('');
+            } else {
+                searchResults.innerHTML = '';
+            }
+        });
+    }
+}
+
 // Rest of the code remains unchanged... 
