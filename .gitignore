@@ -45,3 +45,6 @@ pids
 # Local development
 .vercel
 .netlify
+
+# Old versions
+old/
