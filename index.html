@@ -138,136 +138,67 @@
 
         .search-input {
             width: 100%;
-            padding: 0.75rem;
-            font-size: 1rem;
+            padding: 0.5rem;
             border: none;
             border-radius: 5px;
             background-color: rgba(255, 255, 255, 0.1);
             color: #ffffff;
-            transition: background-color 0.3s;
         }
 
-        .search-input::placeholder {
-            color: #888;
+        .title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
         }
 
-        .move-title {
-            font-family: 'Chinese Rocks', Arial, sans-serif;
-            font-size: 3.5rem;
-            text-align: center;
-            margin: 2rem 0;
-            color: #ffffff;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        .posted-by {
+            color: #cccccc;
+            margin-bottom: 1rem;
         }
 
         .tags-container {
             display: flex;
-            gap: 0.75rem;
-            margin: 1.5rem 0;
-            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
 
         .tag {
             padding: 0.5rem 1rem;
             border: none;
             border-radius: 5px;
-            color: #000000;
+            color: #ffffff;
             font-weight: bold;
             text-transform: uppercase;
-            font-size: 0.9rem;
             cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .tag:hover {
-            transform: translateY(-2px);
         }
 
         .tag.charge {
             background-color: #ffd700;
+            color: #000000;
         }
 
         .tag.flow {
             background-color: #00ffff;
+            color: #000000;
         }
 
-        .move-info {
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .move-info h2 {
-            color: #ffffff;
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-            font-weight: normal;
-        }
-
-        .move-info p {
-            color: #cccccc;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-        }
-
-        .clips-container {
-            background-color: #1a1a1a;
-            border-radius: 10px;
+        .notation-block {
+            background-color: rgba(255, 255, 255, 0.1);
             padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .move-description {
+            line-height: 1.6;
         }
 
         .clip-box {
             margin-bottom: 1rem;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
 
         .clip-box video {
             width: 100%;
-            display: block;
-            background-color: #000000;
-        }
-
-        /* Community Clips Grid */
-        .community-clips-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-
-        .community-clip {
-            position: relative;
-            border-radius: 10px;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .community-clip video {
-            width: 100%;
-            display: block;
-        }
-
-        .community-clip::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.7));
-        }
-
-        .community-clip-title {
-            position: absolute;
-            bottom: 0.5rem;
-            left: 0.5rem;
-            color: white;
-            z-index: 1;
-            font-size: 0.9rem;
+            border-radius: 5px;
         }
 
         .metadata-modal {
@@ -515,6 +446,47 @@
         .sign-in-button:hover {
             background-color: #5b6eae;
         }
+
+        /* Move Page Styles */
+        .move-details {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+        }
+
+        .move-details > div {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            color: #ffffff;
+        }
+
+        .move-details > div:last-child {
+            margin-bottom: 0;
+        }
+
+        .move-details span {
+            color: #cccccc;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 5px;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        .search-input::placeholder {
+            color: #888888;
+        }
+
+        .search-input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
     </style>
     <!-- Load configuration first -->
     <script src="js/config.js"></script>
@@ -561,11 +533,12 @@
                 <input type="text" class="search-input" placeholder="Search moves...">
                 <div class="search-results"></div>
             </div>
-            <h1 class="move-title"></h1>
-            <div class="tags-container"></div>
-            <div class="move-info">
-                <h2>Move Information</h2>
-                <p></p>
+            <h1 class="title" style="font-family: 'Chinese Rocks', Arial, sans-serif; font-size: 3rem; text-align: center; margin: 2rem 0;"></h1>
+            <div class="tags-container" style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 2rem;"></div>
+            <div class="move-details">
+                <div class="move-name">Move Name: <span></span></div>
+                <div class="mechanics">Mechanics Used: <span></span></div>
+                <div class="goal">Goal Achieved: <span></span></div>
             </div>
         </div>
 

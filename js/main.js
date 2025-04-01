@@ -15,8 +15,13 @@ let currentMove = null;
 
 // Get base URL for assets
 function getBaseUrl() {
+    // For local development server
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+        return '/';
+    }
+    // For production (GitHub Pages)
     const baseTag = document.querySelector('base');
-    return baseTag ? baseTag.href : '/';
+    return baseTag ? baseTag.href : window.location.pathname.replace(/\/[^/]*$/, '/');
 }
 
 // Get move ID from URL or default to first move
@@ -27,12 +32,12 @@ function getMoveIdFromUrl() {
 
 // Update URL with current move
 function updateUrl(moveId, updateHistory = true) {
-    const url = new URL(window.location);
+    const url = new URL(window.location.href);
     url.searchParams.set('move', moveId);
     if (updateHistory) {
-        window.history.pushState({ moveId }, '', url);
+        window.history.pushState({ moveId }, '', url.toString());
     } else {
-        window.history.replaceState({ moveId }, '', url);
+        window.history.replaceState({ moveId }, '', url.toString());
     }
 }
 
@@ -41,18 +46,19 @@ window.addEventListener('popstate', (event) => {
     const moveId = getMoveIdFromUrl();
     
     if (moveId) {
-        // Navigate to a move page
         const move = movesData.moves.find(m => m.id === moveId);
         if (move) {
             currentMove = move;
             document.body.classList.remove('landing-page');
+            document.querySelector('.landing-container').style.display = 'none';
             document.querySelector('.layout-container').style.display = 'grid';
             updatePageContent(move);
             setupNotationDropdown();
+            setupHomeButton(); // Make sure home button is set up
         }
     } else {
-        // Navigate to landing page
         document.body.classList.add('landing-page');
+        document.querySelector('.landing-container').style.display = 'flex';
         document.querySelector('.layout-container').style.display = 'none';
         initializeLandingPage();
     }
@@ -133,8 +139,9 @@ function setupHomeButton() {
     const homeButton = document.querySelector('.home-button');
     if (homeButton) {
         homeButton.addEventListener('click', () => {
-            window.history.pushState({}, '', '/');
+            window.history.pushState({}, '', window.location.pathname);
             document.body.classList.add('landing-page');
+            document.querySelector('.landing-container').style.display = 'flex';
             document.querySelector('.layout-container').style.display = 'none';
             initializeLandingPage();
         });
@@ -151,21 +158,27 @@ async function initializeApp() {
         
         if (moveId) {
             // If we have a move ID, show the move page
-            currentMove = movesData.moves.find(m => m.id === moveId);
-            if (!currentMove && movesData.moves.length > 0) {
-                currentMove = movesData.moves[0];
-            }
-            if (currentMove) {
-                updateUrl(currentMove.id, false);
+            const move = movesData.moves.find(m => m.id === moveId);
+            if (move) {
+                currentMove = move;
                 document.body.classList.remove('landing-page');
+                document.querySelector('.landing-container').style.display = 'none';
                 document.querySelector('.layout-container').style.display = 'grid';
-                updatePageContent(currentMove);
+                updateUrl(moveId, false); // Use false to not add to history on initial load
+                updatePageContent(move);
                 setupNotationDropdown();
-                setupHomeButton();
+                setupHomeButton(); // Make sure home button is set up
+            } else {
+                // If move not found, go to landing page
+                document.body.classList.add('landing-page');
+                document.querySelector('.landing-container').style.display = 'flex';
+                document.querySelector('.layout-container').style.display = 'none';
+                initializeLandingPage();
             }
         } else {
             // If no move ID, show the landing page
             document.body.classList.add('landing-page');
+            document.querySelector('.landing-container').style.display = 'flex';
             document.querySelector('.layout-container').style.display = 'none';
             initializeLandingPage();
         }
@@ -178,101 +191,64 @@ async function initializeApp() {
 // Start the application
 initializeApp();
 
-// Update page content with move data
+// Update video paths to use relative paths
 function updatePageContent(move) {
     const baseUrl = getBaseUrl();
     
     // Update title
-    document.querySelector('.move-title').textContent = move.title.toUpperCase();
+    document.querySelector('.title').textContent = move.title;
+    
+    // Update username
+    document.querySelector('.posted-by .username').textContent = move.username;
     
     // Update tags
     const tagsContainer = document.querySelector('.tags-container');
-    tagsContainer.innerHTML = '';
+    tagsContainer.innerHTML = move.tags.map(tag => 
+        `<button class="tag ${tag.toLowerCase()}">${tag}</button>`
+    ).join('');
     
-    // Add predefined tags (Charge, Flow)
-    if (move.properties) {
-        if (move.properties.includes('charge')) {
-            const chargeTag = document.createElement('button');
-            chargeTag.className = 'tag charge';
-            chargeTag.textContent = 'Charge';
-            tagsContainer.appendChild(chargeTag);
-        }
-        if (move.properties.includes('flow')) {
-            const flowTag = document.createElement('button');
-            flowTag.className = 'tag flow';
-            flowTag.textContent = 'Flow';
-            tagsContainer.appendChild(flowTag);
-        }
-    }
-    
-    // Add custom tags
-    move.tags.forEach(tag => {
-        const tagButton = document.createElement('button');
-        tagButton.className = 'tag';
-        tagButton.textContent = tag;
+    // Add click handlers for tags
+    tagsContainer.querySelectorAll('.tag').forEach(tagButton => {
         tagButton.addEventListener('click', () => {
             const searchInput = document.querySelector('.search-input');
-            searchInput.value = tag;
-            searchInput.dispatchEvent(new Event('input'));
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.value = tagButton.textContent;
+                const inputEvent = new Event('input', {
+                    bubbles: true,
+                    cancelable: true
+                });
+                searchInput.dispatchEvent(inputEvent);
+            }
         });
-        tagsContainer.appendChild(tagButton);
     });
     
-    // Update move information
-    const moveInfo = document.querySelector('.move-info p');
-    moveInfo.innerHTML = `
-        <strong>Mechanics Used:</strong> ${move.mechanics}<br><br>
-        <strong>Goal Achieved:</strong> ${move.goal}<br><br>
-        <strong>Notation:</strong> ${move.notation.main}<br>
-        ${move.notation.notes.map(note => `<em>${note}</em>`).join('<br>')}
-    `;
+    // Update move details
+    const moveDetails = document.querySelector('.move-details');
+    if (moveDetails) {
+        moveDetails.querySelector('.move-name span').textContent = move.title;
+        moveDetails.querySelector('.mechanics span').textContent = move.mechanics;
+        moveDetails.querySelector('.goal span').textContent = move.goal;
+    }
     
-    // Update main video
+    // Update main video with correct base URL
     const mainVideo = document.querySelector('.clip-box video source');
-    mainVideo.src = `${baseUrl}${move.video_path}`;
-    mainVideo.parentElement.load();
+    if (mainVideo) {
+        mainVideo.src = `${baseUrl}${move.video_path}`;
+        mainVideo.parentElement.load();
+    }
 
     // Handle alternate video if available
     const alternateClipBox = document.querySelector('.clip-box:nth-child(2)');
-    if (move.alternate_video_path) {
-        alternateClipBox.style.display = 'block';
-        const alternateVideo = alternateClipBox.querySelector('video source');
-        alternateVideo.src = `${baseUrl}${move.alternate_video_path}`;
-        alternateVideo.parentElement.load();
-    } else {
-        alternateClipBox.style.display = 'none';
-    }
-
-    // Update community clips
-    updateCommunityClips(move);
-}
-
-// Update community clips section
-function updateCommunityClips(move) {
-    const communityClipsGrid = document.querySelector('.community-clips-grid');
-    communityClipsGrid.innerHTML = '';
-
-    if (move.community_clips && move.community_clips.length > 0) {
-        move.community_clips.forEach((clip, index) => {
-            const clipElement = document.createElement('div');
-            clipElement.className = 'community-clip';
-            clipElement.innerHTML = `
-                <video loop muted playsinline>
-                    <source src="${getBaseUrl()}${clip.video_path}" type="video/mp4">
-                </video>
-                <div class="community-clip-title">Community Clip ${index + 1}</div>
-            `;
-            
-            // Add hover play/pause functionality
-            const video = clipElement.querySelector('video');
-            clipElement.addEventListener('mouseenter', () => video.play());
-            clipElement.addEventListener('mouseleave', () => {
-                video.pause();
-                video.currentTime = 0;
-            });
-            
-            communityClipsGrid.appendChild(clipElement);
-        });
+    if (alternateClipBox) {
+        if (move.alternate_video_path) {
+            alternateClipBox.style.display = 'block';
+            const alternateVideo = alternateClipBox.querySelector('video source');
+            alternateVideo.src = `${baseUrl}${move.alternate_video_path}`;
+            alternateVideo.parentElement.load();
+        } else {
+            alternateClipBox.style.display = 'none';
+        }
     }
 }
 
@@ -292,7 +268,7 @@ function initializeLandingPage() {
                 
                 const results = fuse.search(query);
                 searchResults.innerHTML = results.map(result => `
-                    <div class="search-result" onclick="window.location.href='?move=${result.item.id}'">
+                    <div class="search-result" onclick="handleMoveSelect('${result.item.id}')">
                         <h3>${result.item.title}</h3>
                         <p>${result.item.notation.main}</p>
                     </div>
@@ -303,5 +279,23 @@ function initializeLandingPage() {
         });
     }
 }
+
+// Handle move selection
+function handleMoveSelect(moveId) {
+    const move = movesData.moves.find(m => m.id === moveId);
+    if (move) {
+        currentMove = move;
+        document.body.classList.remove('landing-page');
+        document.querySelector('.landing-container').style.display = 'none';
+        document.querySelector('.layout-container').style.display = 'grid';
+        updateUrl(moveId, true);
+        updatePageContent(move);
+        setupNotationDropdown();
+        setupHomeButton(); // Make sure home button is set up
+    }
+}
+
+// Add this to the window object so it can be called from onclick
+window.handleMoveSelect = handleMoveSelect;
 
 // Rest of the code remains unchanged... 
