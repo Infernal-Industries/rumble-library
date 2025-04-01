@@ -13,6 +13,29 @@
       "username": "DemoUser",
       "video_path": "./assets/clips/sample.mp4",
       "alternate_video_path": null
+    },
+    {
+      "id": "windburst",
+      "title": "Windburst",
+      "notation": {
+        "main": "236A > 214B",
+        "notes": ["Can be followed up with 623C for juggle"]
+      },
+      "mechanics": "Uses wind pressure to create space and set up for follow-up attacks",
+      "goal": "Control space and create offensive opportunities",
+      "tags": ["Zoning", "Setup", "Mid-Range"],
+      "properties": ["charge", "flow"],
+      "username": "DemoUser",
+      "video_path": "./assets/clips/windburst.mp4",
+      "alternate_video_path": null,
+      "community_clips": [
+        {
+          "video_path": "./assets/clips/community_windburst_1.mp4"
+        },
+        {
+          "video_path": "./assets/clips/community_windburst_2.mp4"
+        }
+      ]
     }
   ]
 } 

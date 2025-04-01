@@ -80,6 +80,67 @@ async function loadMovesData() {
     }
 }
 
+// Setup notation dropdown
+function setupNotationDropdown() {
+    const trigger = document.querySelector('.notation-dropdown-trigger');
+    const menu = document.querySelector('.notation-dropdown-menu');
+    const copyButton = menu.querySelector('button:first-child');
+    const shareButton = menu.querySelector('button:last-child');
+
+    if (trigger && menu) {
+        trigger.addEventListener('click', () => {
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!trigger.contains(e.target) && !menu.contains(e.target)) {
+                menu.style.display = 'none';
+            }
+        });
+
+        // Copy notation
+        if (copyButton) {
+            copyButton.addEventListener('click', () => {
+                const notation = currentMove.notation.main;
+                navigator.clipboard.writeText(notation).then(() => {
+                    copyButton.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyButton.textContent = 'Copy Notation';
+                    }, 2000);
+                });
+            });
+        }
+
+        // Share move
+        if (shareButton) {
+            shareButton.addEventListener('click', () => {
+                const url = new URL(window.location);
+                url.searchParams.set('move', currentMove.id);
+                navigator.clipboard.writeText(url.toString()).then(() => {
+                    shareButton.textContent = 'Copied!';
+                    setTimeout(() => {
+                        shareButton.textContent = 'Share';
+                    }, 2000);
+                });
+            });
+        }
+    }
+}
+
+// Setup home button
+function setupHomeButton() {
+    const homeButton = document.querySelector('.home-button');
+    if (homeButton) {
+        homeButton.addEventListener('click', () => {
+            window.history.pushState({}, '', '/');
+            document.body.classList.add('landing-page');
+            document.querySelector('.layout-container').style.display = 'none';
+            initializeLandingPage();
+        });
+    }
+}
+
 // Initialize the application
 async function initializeApp() {
     try {
@@ -100,6 +161,7 @@ async function initializeApp() {
                 document.querySelector('.layout-container').style.display = 'grid';
                 updatePageContent(currentMove);
                 setupNotationDropdown();
+                setupHomeButton();
             }
         } else {
             // If no move ID, show the landing page
@@ -116,62 +178,56 @@ async function initializeApp() {
 // Start the application
 initializeApp();
 
-// Update video paths to use relative paths
+// Update page content with move data
 function updatePageContent(move) {
     const baseUrl = getBaseUrl();
     
     // Update title
-    document.querySelector('.title').textContent = move.title;
-    
-    // Update username
-    document.querySelector('.posted-by .username').textContent = move.username;
+    document.querySelector('.move-title').textContent = move.title.toUpperCase();
     
     // Update tags
     const tagsContainer = document.querySelector('.tags-container');
-    tagsContainer.innerHTML = move.tags.map(tag => 
-        `<button class="tag ${tag.toLowerCase()}">${tag}</button>`
-    ).join('');
+    tagsContainer.innerHTML = '';
     
-    // Add click handlers for tags
-    tagsContainer.querySelectorAll('.tag').forEach(tagButton => {
+    // Add predefined tags (Charge, Flow)
+    if (move.properties) {
+        if (move.properties.includes('charge')) {
+            const chargeTag = document.createElement('button');
+            chargeTag.className = 'tag charge';
+            chargeTag.textContent = 'Charge';
+            tagsContainer.appendChild(chargeTag);
+        }
+        if (move.properties.includes('flow')) {
+            const flowTag = document.createElement('button');
+            flowTag.className = 'tag flow';
+            flowTag.textContent = 'Flow';
+            tagsContainer.appendChild(flowTag);
+        }
+    }
+    
+    // Add custom tags
+    move.tags.forEach(tag => {
+        const tagButton = document.createElement('button');
+        tagButton.className = 'tag';
+        tagButton.textContent = tag;
         tagButton.addEventListener('click', () => {
             const searchInput = document.querySelector('.search-input');
-            const searchResults = document.querySelector('.search-results');
-            if (searchInput && searchResults) {
-                searchInput.focus();
-                searchInput.value = tagButton.textContent;
-                const inputEvent = new Event('input', {
-                    bubbles: true,
-                    cancelable: true
-                });
-                setTimeout(() => {
-                    searchInput.dispatchEvent(inputEvent);
-                }, 0);
-            }
+            searchInput.value = tag;
+            searchInput.dispatchEvent(new Event('input'));
         });
+        tagsContainer.appendChild(tagButton);
     });
     
-    // Update notation block
-    const notationBlock = document.querySelector('.notation-block');
-    notationBlock.innerHTML = `
-        Notation: ${move.notation.main}<br>
-        ${move.notation.notes.map(note => note).join('<br>')}
-        <div class="notation-dropdown-trigger"></div>
-        <div class="notation-dropdown-menu">
-            <button>Copy Notation</button>
-            <button>Share</button>
-        </div>
+    // Update move information
+    const moveInfo = document.querySelector('.move-info p');
+    moveInfo.innerHTML = `
+        <strong>Mechanics Used:</strong> ${move.mechanics}<br><br>
+        <strong>Goal Achieved:</strong> ${move.goal}<br><br>
+        <strong>Notation:</strong> ${move.notation.main}<br>
+        ${move.notation.notes.map(note => `<em>${note}</em>`).join('<br>')}
     `;
     
-    // Update move description
-    const moveDescription = document.querySelector('.move-description');
-    moveDescription.innerHTML = `
-        Move Name: ${move.title}<br><br>
-        Mechanics Used: ${move.mechanics}<br><br>
-        Goal Achieved: ${move.goal}
-    `;
-    
-    // Update main video with correct base URL
+    // Update main video
     const mainVideo = document.querySelector('.clip-box video source');
     mainVideo.src = `${baseUrl}${move.video_path}`;
     mainVideo.parentElement.load();
@@ -185,6 +241,38 @@ function updatePageContent(move) {
         alternateVideo.parentElement.load();
     } else {
         alternateClipBox.style.display = 'none';
+    }
+
+    // Update community clips
+    updateCommunityClips(move);
+}
+
+// Update community clips section
+function updateCommunityClips(move) {
+    const communityClipsGrid = document.querySelector('.community-clips-grid');
+    communityClipsGrid.innerHTML = '';
+
+    if (move.community_clips && move.community_clips.length > 0) {
+        move.community_clips.forEach((clip, index) => {
+            const clipElement = document.createElement('div');
+            clipElement.className = 'community-clip';
+            clipElement.innerHTML = `
+                <video loop muted playsinline>
+                    <source src="${getBaseUrl()}${clip.video_path}" type="video/mp4">
+                </video>
+                <div class="community-clip-title">Community Clip ${index + 1}</div>
+            `;
+            
+            // Add hover play/pause functionality
+            const video = clipElement.querySelector('video');
+            clipElement.addEventListener('mouseenter', () => video.play());
+            clipElement.addEventListener('mouseleave', () => {
+                video.pause();
+                video.currentTime = 0;
+            });
+            
+            communityClipsGrid.appendChild(clipElement);
+        });
     }
 }
 

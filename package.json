@@ -4,6 +4,7 @@
   "description": "A library for fighting game moves and techniques",
   "scripts": {
     "start": "python3 -m http.server 3000",
+    "dev": "five-server --port=3000",
     "prebuild": "mkdir -p public/js public/api public/assets/clips public/data && cp data/moves.json public/data/",
     "build": "cp index.html discord-callback.html public/ && cp -r js/* public/js/ && cp -r api/* public/api/ && cp -r assets/* public/assets/ && cp -r data/* public/data/",
     "predeploy": "npm run build",
@@ -15,6 +16,7 @@
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "gh-pages": "^6.3.0"
+    "gh-pages": "^6.3.0",
+    "five-server": "^0.1.2"
   }
 }

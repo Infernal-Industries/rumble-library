@@ -61,4 +61,36 @@ async function updateMovesData(moveData) {
         console.error('Update moves error:', error);
         throw error;
     }
+}
+
+// Show upload status
+function showUploadStatus(message, progress = null) {
+    const status = document.querySelector('.upload-status');
+    const messageEl = status.querySelector('.upload-status-message');
+    const progressEl = status.querySelector('.upload-status-progress');
+
+    if (status && messageEl) {
+        messageEl.textContent = message;
+        status.style.display = 'flex';
+
+        if (progressEl && progress !== null) {
+            progressEl.style.setProperty('--progress', `${progress}%`);
+        }
+    }
+}
+
+// Hide upload status
+function hideUploadStatus() {
+    const status = document.querySelector('.upload-status');
+    if (status) {
+        status.style.display = 'none';
+    }
+}
+
+// Update upload progress
+function updateUploadProgress(progress) {
+    const progressEl = document.querySelector('.upload-status-progress');
+    if (progressEl) {
+        progressEl.style.setProperty('--progress', `${progress}%`);
+    }
 } 
